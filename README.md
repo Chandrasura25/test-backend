@@ -1,66 +1,207 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel API Documentation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Table of Contents
 
-## About Laravel
+1. [Introduction](#introduction)
+2. [Requirements](#requirements)
+3. [Installation](#installation)
+4. [Environment Configuration](#environment-configuration)
+5. [Running the Application](#running-the-application)
+6. [API Endpoints](#api-endpoints)
+    - [Initialize Payment](#initialize-payment)
+    - [Verify Transaction](#verify-transaction)
+    - [List Transactions](#list-transactions)
+7. [Usage](#usage)
+8. [License](#license)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Introduction
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This is a Laravel API project that handles payment transactions using Paystack. The API includes endpoints to initialize payments, verify transaction statuses, and list all transactions.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+- PHP 8.0 or higher
+- Composer
+- Laravel 9.x
+- MySQL or any supported database
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Follow these steps to set up the project locally:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Clone the repository:**
 
-## Laravel Sponsors
+    ```bash
+    git clone https://github.com/Chandrasura25/test-backend.git
+    cd test-backend
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. **Install dependencies:**
 
-### Premium Partners
+    ```bash
+    composer install
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+3. **Create a copy of the `.env` file:**
 
-## Contributing
+    ```bash
+    cp .env.example .env
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Generate an application key:**
 
-## Code of Conduct
+    ```bash
+    php artisan key:generate
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Environment Configuration
 
-## Security Vulnerabilities
+Configure your `.env` file with the necessary settings. Below are the key configurations:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```dotenv
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=base64:...
+APP_DEBUG=true
+APP_URL=http://localhost
+
+LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER=file
+FILESYSTEM_DRIVER=local
+QUEUE_CONNECTION=sync
+SESSION_DRIVER=file
+SESSION_LIFETIME=120
+
+PAYSTACK_SECRET_KEY=your_paystack_secret_key
+```
+
+## Running the Application
+
+Run the following command to start the local development server:
+
+```bash
+php artisan serve
+```
+
+Your application will be accessible at `http://localhost:8000`.
+
+## API Endpoints
+
+### Initialize Payment
+
+- **URL:** `/api/initialize-payment`
+- **Method:** `POST`
+- **Parameters:**
+  - `email` (string) - Customer's email address (required)
+  - `amount` (integer) - Amount in kobo (required)
+  - `callback_url` (string) - URL to redirect to after payment (optional)
+
+- **Response:**
+
+    ```json
+    {
+      "status": true,
+      "message": "Authorization URL created",
+      "data": {
+        "authorization_url": "https://checkout.paystack.com/xxxxx",
+        "access_code": "xxxxxx",
+        "reference": "xxxxxx"
+      }
+    }
+    ```
+
+### Verify Transaction
+
+- **URL:** `/api/verify-transaction`
+- **Method:** `POST`
+- **Parameters:**
+  - `reference` (string) - Transaction reference (required)
+
+- **Response:**
+
+    ```json
+    {
+      "status": "success",
+      "message": "Payment was successful"
+    }
+    ```
+
+### List Transactions
+
+- **URL:** `/api/transactions`
+- **Method:** `GET`
+- **Response:**
+
+    ```json
+    {
+      "status": "success",
+      "data": [
+        {
+          "reference": "xxxxxx",
+          "amount": 5000,
+          "status": "success",
+          "created_at": "2023-07-24T12:34:56Z"
+        },
+        ...
+      ]
+    }
+    ```
+
+## Usage
+
+### Initialize Payment
+
+To initialize a payment, send a POST request to `/api/initialize-payment` with the required parameters. Use the `authorization_url` from the response to redirect the user for payment.
+
+### Verify Transaction
+
+After the user completes the payment, Paystack will redirect to the `callback_url` with a `reference` parameter. Send this reference to `/api/verify-transaction` to verify the transaction status.
+
+### List Transactions
+
+To retrieve a list of all transactions, send a GET request to `/api/transactions`.
+
+### Example
+
+#### Initialize Payment
+
+```bash
+curl -X POST http://localhost:8000/api/initialize-payment \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "customer@example.com",
+  "amount": 5000
+}'
+```
+
+#### Verify Transaction
+
+```bash
+curl -X POST http://localhost:8000/api/verify-transaction \
+-H "Content-Type: application/json" \
+-d '{
+  "reference": "xxxxxx"
+}'
+```
+
+#### List Transactions
+
+```bash
+curl -X GET http://localhost:8000/api/transactions \
+-H "Content-Type: application/json"
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
