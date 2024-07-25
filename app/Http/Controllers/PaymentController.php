@@ -83,32 +83,38 @@ class PaymentController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Payment verification failed']);
         }
     }
-   public function listTransactions()
-    {
-        $url = 'https://api.paystack.co/transaction';
-        $authorization = 'Bearer ' . env('PAYSTACK_SECRET_KEY');
+    public function listTransactions()
+{
+    $url = 'https://api.paystack.co/transaction';
+    $authorization = 'Bearer ' . env('PAYSTACK_SECRET_KEY');
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: $authorization",
-            "Cache-Control: no-cache",
-        ]);
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Authorization: $authorization",
+        "Cache-Control: no-cache",
+    ]);
 
-        $response = curl_exec($ch);
+    $response = curl_exec($ch);
 
-        if (curl_errno($ch)) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            return response()->json(['error' => $error], 500);
-        }
-
+    if (curl_errno($ch)) {
+        $error = curl_error($ch);
         curl_close($ch);
-
-        $data = json_decode($response, true);
-        $transactions = $data['data']; // Assuming response contains 'data' key with transactions
-
-        return response()->json($transactions);
+        return response()->json(['error' => $error], 500);
     }
+
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+    if (isset($data['data']) && is_array($data['data'])) {
+        // Reverse the order of transactions
+        $transactions = array_reverse($data['data']);
+    } else {
+        $transactions = [];
+    }
+
+    return response()->json($transactions);
+}
+
 }
